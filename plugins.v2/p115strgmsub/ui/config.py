@@ -200,6 +200,32 @@ class UIConfig:
                              'content': [{'component': 'VTextField', 'props': {'model': 'cookies', 'label': '115 Cookie', 'type': 'password', 'placeholder': 'UID=xxx; CID=xxx; SEID=xxx'}}]}
                         ]
                     },
+                    # 搜索源优先级
+                    {
+                        'component': 'VRow',
+                        'content': [{
+                            'component': 'VCol',
+                            'props': {'cols': 12},
+                            'content': [{
+                                'component': 'VSelect',
+                                'props': {
+                                    'model': 'search_source_order',
+                                    'label': '搜索源优先级（按选择顺序排序）',
+                                    'items': [
+                                        {'title': 'PanSou (盘搜)', 'value': 'pansou'},
+                                        {'title': 'HDHive (影巢)', 'value': 'hdhive'},
+                                        {'title': 'Nullbr', 'value': 'nullbr'}
+                                    ],
+                                    'multiple': True,
+                                    'chips': True,
+                                    'clearable': True,
+                                    'closable-chips': True,
+                                    'hint': '按选择的先后顺序依次搜索，前面的源搜到结果就不再查询后面的；留空使用默认优先级 Nullbr > HDHive > PanSou；未选入的已启用源会自动排在末尾',
+                                    'persistent-hint': True
+                                }
+                            }]
+                        }]
+                    },
                     # PanSou说明
                     {
                         'component': 'VRow',
@@ -405,6 +431,7 @@ class UIConfig:
             "hdhive_cookie": "",
             "hdhive_auto_refresh": True,
             "hdhive_refresh_before": 86400,
+            "search_source_order": [],
             "exclude_subscribes": [],
             "block_system_subscribe": False,
             "max_transfer_per_sync": 50,

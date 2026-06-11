@@ -71,6 +71,8 @@ class P115StrgmSub(_PluginBase):
     _movie_save_path: str = "/我的接收/MoviePilot/Movie"
     _only_115: bool = True
     _exclude_subscribes: List[int] = []
+    # 搜索源优先级（按列表顺序），为空时默认 Nullbr > HDHive > PanSou
+    _search_source_order: List[str] = []
 
     _nullbr_enabled: bool = False
     _nullbr_appid: str = ""
@@ -567,6 +569,15 @@ class P115StrgmSub(_PluginBase):
             self._batch_size = int(config.get("batch_size", 20) or 20)
             self._skip_other_season_dirs = config.get("skip_other_season_dirs", True)
 
+            # 搜索源优先级（兼容逗号分隔字符串）
+            raw_order = config.get("search_source_order", []) or []
+            if isinstance(raw_order, str):
+                self._search_source_order = [x.strip() for x in raw_order.split(",") if x.strip()]
+            else:
+                self._search_source_order = list(raw_order)
+            if self._search_source_order:
+                logger.info(f"搜索源自定义优先级：{' > '.join(self._search_source_order)}")
+
             # UI新增配置
             self._unblock_site_ids = config.get("unblock_site_ids", []) or []
             raw_sites = config.get("unblock_site_names", self._unblock_site_names)
@@ -748,7 +759,8 @@ class P115StrgmSub(_PluginBase):
             hdhive_password=self._hdhive_password,
             hdhive_cookie=self._hdhive_cookie,
             only_115=self._only_115,
-            pansou_channels=self._pansou_channels
+            pansou_channels=self._pansou_channels,
+            search_source_order=self._search_source_order
         )
         # 设置持久化函数，用于保存订阅的历史积分花费
         self._search_handler.set_data_funcs(self.get_data, self.save_data)
@@ -818,6 +830,7 @@ class P115StrgmSub(_PluginBase):
             "hdhive_auto_refresh": self._hdhive_auto_refresh,
             "hdhive_refresh_before": self._hdhive_refresh_before,
             # 其他配置
+            "search_source_order": self._search_source_order,
             "exclude_subscribes": self._exclude_subscribes,
             "block_system_subscribe": self._block_system_subscribe,
             "max_transfer_per_sync": self._max_transfer_per_sync,

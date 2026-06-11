@@ -31,7 +31,8 @@ class SearchHandler:
         hdhive_max_unlock_points: int = 50,
         hdhive_max_points_per_sub: int = 20,
         only_115: bool = True,
-        pansou_channels: str = ""
+        pansou_channels: str = "",
+        search_source_order: Optional[List[str]] = None
     ):
         """
         初始化搜索处理器
@@ -49,6 +50,8 @@ class SearchHandler:
         :param hdhive_auto_unlock: 是否自动解锁 HDHive 资源
         :param only_115: 是否只搜索115网盘资源
         :param pansou_channels: PanSou 搜索频道
+        :param search_source_order: 自定义搜索源优先级列表，如 ["pansou", "hdhive"]；
+                                    为空时使用默认优先级 Nullbr > HDHive > PanSou
         """
         self._pansou_client = pansou_client
         self._nullbr_client = nullbr_client
@@ -70,31 +73,44 @@ class SearchHandler:
         self._save_data_func = None
         self._only_115 = only_115
         self._pansou_channels = pansou_channels
+        self._search_source_order = search_source_order or []
 
     def get_enabled_sources(self) -> List[str]:
         """
         获取已启用且可用的搜索源列表，按优先级排序
 
-        :return: 搜索源名称列表，按 Nullbr > HDHive > PanSou 排序
+        优先级规则：
+        1. 用户配置了自定义优先级（search_source_order）时按其顺序排列；
+           未出现在自定义列表中的已启用源按默认顺序追加在末尾
+        2. 未配置时使用默认优先级 Nullbr > HDHive > PanSou
+
+        :return: 搜索源名称列表
         """
-        sources = []
+        # 按默认优先级收集已启用且可用的源
+        available = []
 
         # Nullbr
         if self._nullbr_enabled and self._nullbr_client:
-            sources.append("nullbr")
+            available.append("nullbr")
 
         # HDHive
         if self._hdhive_enabled:
             if self._hdhive_query_mode == "playwright" and self._hdhive_username and self._hdhive_password:
-                sources.append("hdhive")
+                available.append("hdhive")
             elif self._hdhive_query_mode == "api" and self._hdhive_client and self._hdhive_client.is_ready:
-                sources.append("hdhive")
+                available.append("hdhive")
 
         # PanSou
         if self._pansou_enabled and self._pansou_client:
-            sources.append("pansou")
+            available.append("pansou")
 
-        return sources
+        # 应用用户自定义优先级
+        if self._search_source_order:
+            sources = [s for s in self._search_source_order if s in available]
+            sources += [s for s in available if s not in sources]
+            return sources
+
+        return available
 
     def search_resources(
         self,
@@ -105,7 +121,7 @@ class SearchHandler:
         """
         统一的资源搜索方法，支持电影和电视剧
         按优先级尝试所有启用的搜索源，第一个有结果的就返回
-        搜索优先级: Nullbr > HDHive > PanSou
+        搜索优先级: 默认 Nullbr > HDHive > PanSou，支持通过配置自定义排序
 
         注意：此方法主要供电影订阅使用。电视剧订阅使用 search_single_source 进行逐源搜索。
 
