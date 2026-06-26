@@ -45,7 +45,7 @@ class P115StrgmSub(_PluginBase):
     # 作者主页
     author_url = "https://github.com/arts1314"
     # 插件配置项ID前缀
-    plugin_config_prefix = "p115strgmsub_2"
+    plugin_config_prefix = "p115strgmsub_"
     plugin_order = 20
     auth_level = 1
 
