@@ -30,20 +30,20 @@ lock = Lock()
 
 
 class P115StrgmSub(_PluginBase):
-    """115网盘订阅追更插件"""
+    """115网盘订阅追更插件2"""
 
     # 插件名称
-    plugin_name = "115网盘订阅追更"
+    plugin_name = "115网盘订阅追更2"
     # 插件描述
     plugin_desc = "结合MoviePilot订阅功能，自动搜索115网盘资源并转存缺失的电影和剧集。"
     # 插件图标
     plugin_icon = "https://raw.githubusercontent.com/jxxghp/MoviePilot-Plugins/main/icons/cloud.png"
     # 插件版本
-    plugin_version = "1.5.3"
+    plugin_version = "1.8.1"
     # 插件作者
-    plugin_author = "mrtian2016"
+    plugin_author = "arts1314"
     # 作者主页
-    author_url = "https://github.com/mrtian2016"
+    author_url = "https://github.com/arts1314"
     # 插件配置项ID前缀
     plugin_config_prefix = "p115strgmsub_"
     plugin_order = 20
